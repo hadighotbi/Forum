@@ -1,0 +1,54 @@
+@extends('layouts.app')
+
+@section('content')
+    <thread-view :initial-replies-count="{{ $thread->replies_count }}" inline-template>
+        <div class="container">
+            <div class="row ">
+                <div class="col-md-8">
+                    <div class="card" style="margin-bottom: 15px;">
+                        <div class="card-header">
+                            <div class="level">
+                                <span class="flex">
+                                    <a href="/profiles/{{$thread->creator->name}}">{{ $thread->creator->name }}</a>
+                                    posted : {{$thread->title}}
+                                </span>
+                                @can('update', $thread)
+                                    <form action="{{$thread->path()}}" method="POST">
+                                        @csrf
+                                        @method('delete')
+                                        <button type="submit" class="btn btn-danger">
+                                            Delete Thread
+                                        </button>
+                                    </form>
+                                @endcan
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            {{$thread->body}}
+                        </div>
+                    </div>
+
+
+                    <replies @added="repliesCount++" @removed="repliesCount--"></replies>
+
+
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card" style="margin-bottom: 30px">
+                        <div class="card-body">
+                            <p>This Thread published {{$thread->created_at->diffForHumans()}}
+                                by <a href="/profiles/{{$thread->creator->name}}">{{$thread->creator->name}}</a> , and currently has
+                                <span v-text="repliesCount"></span> {{Illuminate\Support\Str::pluralStudly('comment', $thread->replies_count)}}.
+                            </p>
+
+                            <p>
+                                <subscribe-button :active="{{ json_encode($thread->isSubscribedTo) }}"></subscribe-button>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </thread-view>
+@endsection
