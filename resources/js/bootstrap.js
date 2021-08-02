@@ -37,17 +37,8 @@ Vue.prototype.authorize = function (handler) {
     return user ? handler(user) : false;
 }
 
-// import Echo from 'laravel-echo';
 
-// window.Pusher = require('pusher-js');
-
-// window.Echo = new Echo({
-//     broadcaster: 'pusher',
-//     key: process.env.MIX_PUSHER_APP_KEY,
-//     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
-//     forceTLS: true
-// });
 window.events = new Vue();
-window.flash = function (message){
-    window.events.$emit('flash' , message);
+window.flash = function (message, level = 'success') {
+    window.events.$emit('flash' ,{ message , level });
 };

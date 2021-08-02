@@ -27,41 +27,51 @@ class RepliesController extends Controller
     /**
      * @param $channelId
      * @param Thread $thread
-     * @return \Illuminate\Http\RedirectResponse
-     * @throws \Illuminate\Validation\ValidationException
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Database\Eloquent\Model|\Illuminate\Http\Response
      */
-    public function store($channelId, Thread $thread, Spam $spam)
+    public function store($channelId, Thread $thread)
     {
-        $this->validate( request() , ['body' => 'required'] );
-        $spam->detect(request('body'));
+        try {
+            $this->validateReply();
 
-        $reply = $thread->addReply([
-            'body' => request('body'),
-            'user_id' => auth()->id()
-        ]);
-
-        if(request()->expectsJson()) {
-            return $reply->load('owner');
+            $reply = $thread->addReply([
+                'body' => request('body'),
+                'user_id' => auth()->id()
+            ]);
         }
-
-        return back()->with('flash', 'Your reply has been left.');
+        catch (\Exception $e) {
+            return response(
+                'Sorry your reply could not be saved at this time', 422
+            );
+        }
+        return $reply->load('owner');
     }
 
     /**
      * @param Reply $reply
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function update(Reply $reply)
     {
         $this->authorize('update', $reply);
-        $reply->update(request(['body']));
+
+        try {
+            $this->validateReply();
+            $reply->update(request(['body']));
+        }
+        catch (\Exception $e) {
+            return response(
+                'Sorry your reply could not be saved at this time', 422
+            );
+        }
     }
 
     /**
      * @param Reply $reply
-     * @return \Illuminate\Contracts\Foundation\Application|
      * \Illuminate\Contracts\Routing\ResponseFactory|
      * \Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function destroy(Reply $reply)
@@ -70,12 +80,14 @@ class RepliesController extends Controller
 
         $reply->delete();
 
-        if(request()->expectsJson()){
-            return response(['status'=>'Reply Deleted']);
-        }
-
-        return back();
+        return response(['status'=>'Reply Deleted']);
     }
 
+    public function validateReply()
+    {
+        $this->validate(request(), ['body' => 'required']);
+        resolve(Spam::class)->detect(request('body'));
+
+    }
 
 }
