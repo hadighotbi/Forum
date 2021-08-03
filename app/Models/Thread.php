@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Notifications\ThreadWasUpdated;
-use App\Events\ThreadHasNewReply;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -133,8 +132,6 @@ class Thread extends Model
         //Look in the cache for proper key.
         //Compare that carbon instance with the $thread->updated_at
         $key = $user->visitedThreadCacheKey($this);
-
         return $this->updated_at > cache($key);
-
     }
 }

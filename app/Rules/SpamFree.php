@@ -2,6 +2,7 @@
 
 namespace App\Rules;
 
+use App\Inspections\Spam;
 use Illuminate\Contracts\Validation\Rule;
 
 class SpamFree implements Rule
@@ -23,9 +24,14 @@ class SpamFree implements Rule
      * @param  mixed  $value
      * @return bool
      */
-    public function passes($attribute, $value)
+    public function passes($attribute, $value): bool
     {
-        //
+        try {
+            return ! resolve(Spam::class)->detect($value);
+        }
+        catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -35,6 +41,6 @@ class SpamFree implements Rule
      */
     public function message()
     {
-        return 'The validation error message.';
+        return 'The :attribute validation error message.';
     }
 }

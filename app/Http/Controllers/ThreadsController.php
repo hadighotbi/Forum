@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Filters\ThreadFilters;
 use App\Models\Channel;
 use App\Models\Thread;
+use App\Rules\SpamFree;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -29,12 +30,17 @@ class ThreadsController extends Controller
         return view('threads.create');
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function store(Request $request)
     {
         //Validation
         $this->validate( $request,[
-            'title' => 'required',
-            'body' => 'required',
+            'title' => ['required',new SpamFree],
+            'body' => ['required',new SpamFree],
             'channel_id' => 'required|exists:channels,id'
         ]);
         //Create Thread
@@ -49,12 +55,10 @@ class ThreadsController extends Controller
 
     public function show($channel, Thread $thread)
     {
-        if(auth()->check()) {
+        if(auth()->check())
+        {
             auth()->user()->read($thread);
         }
-        //Record that the user visited this page.
-        //Record a timestamp.
-
         return view('threads.show',compact('thread'));
     }
 

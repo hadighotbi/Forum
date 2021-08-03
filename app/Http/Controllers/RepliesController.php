@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Inspections\Spam;
 use App\Models\Reply;
 use App\Models\Thread;
-use Illuminate\Http\Request;
+use App\Rules\SpamFree;
+use Illuminate\Support\Facades\Gate;
 
 class RepliesController extends Controller
 {
@@ -31,8 +31,14 @@ class RepliesController extends Controller
      */
     public function store($channelId, Thread $thread)
     {
+        if (Gate::denies('create', new Reply)){
+            return response(
+                'You are posting too frequently, Please take a break :)', 422
+            );
+        }
+
         try {
-            $this->validateReply();
+            $this->validate( request(), ['body' => ['required',new SpamFree]]);
 
             $reply = $thread->addReply([
                 'body' => request('body'),
@@ -57,7 +63,7 @@ class RepliesController extends Controller
         $this->authorize('update', $reply);
 
         try {
-            $this->validateReply();
+            $this->validate( request(), ['body' => ['required',new SpamFree]]);
             $reply->update(request(['body']));
         }
         catch (\Exception $e) {
@@ -77,17 +83,8 @@ class RepliesController extends Controller
     public function destroy(Reply $reply)
     {
         $this->authorize('update', $reply);
-
         $reply->delete();
-
         return response(['status'=>'Reply Deleted']);
-    }
-
-    public function validateReply()
-    {
-        $this->validate(request(), ['body' => 'required']);
-        resolve(Spam::class)->detect(request('body'));
-
     }
 
 }
