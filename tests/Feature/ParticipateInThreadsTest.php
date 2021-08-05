@@ -37,7 +37,7 @@ class ParticipateInThreadsTest extends TestCase
         $reply = Reply::factory()->make(['body' => null]);
 
         $this->post($thread->path() . '/replies' ,  $reply->toArray())
-            ->assertStatus(422);
+            ->assertRedirect();
     }
 
     function test_unauthorized_users_can_not_delete_replies ()
@@ -86,19 +86,20 @@ class ParticipateInThreadsTest extends TestCase
 
     function test_replies_that_contain_spam_may_not_created ()
     {
+        $this->withExceptionHandling();
         $this->signIn();
         $thread = Thread::factory()->create();
         $reply = Reply::factory()->make([
             'body' => 'Yahoo Customer Support'
         ]);
 
-        $this->post($thread->path() . '/replies' ,  $reply->toArray())
+        $this->json('post',$thread->path() . '/replies' ,  $reply->toArray())
             ->assertStatus(422);
     }
 
     function test_users_may_only_reply_a_maximum_of_once_per_minute ()
     {
-        $this->signIn();
+        $this->signIn()->withExceptionHandling();
 
         $thread = Thread::factory()->create();
 
@@ -110,6 +111,6 @@ class ParticipateInThreadsTest extends TestCase
             ->assertStatus(201);  //201 created Status
 
         $this->post($thread->path() . '/replies' ,  $reply->toArray())
-            ->assertStatus(422);
+            ->assertStatus(429);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Validation\ValidationException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -34,8 +35,13 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
-        $this->reportable(function (Throwable $e) {
-            //
+        $this->renderable(function (ValidationException $e, $request) {
+            if($request->expectsJson()) {
+                return response('Sorry Validation failed.', 422);
+            }
+        });
+        $this->renderable(function (ThrottleException $e, $request) {
+            return response ('You are posting too frequently.',429);
         });
     }
 }

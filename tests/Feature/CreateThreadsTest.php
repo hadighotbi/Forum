@@ -34,17 +34,20 @@ class CreateThreadsTest extends TestCase
             ->assertSee($thread->body);
     }
 
-    function test_a_thread_requires_a_title() {
+    function test_a_thread_requires_a_title()
+    {
         $this->PublishThread(['title' => null])
             ->assertSessionHasErrors('title');
     }
 
-    function test_a_thread_requires_a_body() {
+    function test_a_thread_requires_a_body()
+    {
         $this->PublishThread(['body' => null])
             ->assertSessionHasErrors('body');
     }
 
-    function test_a_thread_requires_a_valid_channel() {
+    function test_a_thread_requires_a_valid_channel()
+    {
         Channel::factory()->count(2)->create();
 
         $this->PublishThread(['channel_id' => null])
@@ -54,7 +57,8 @@ class CreateThreadsTest extends TestCase
             ->assertSessionHasErrors('channel_id');
     }
 
-    public function PublishThread ($overrides = []) {
+    public function PublishThread ($overrides = [])
+    {
         $this->withExceptionHandling()->signIn();
         $thread = Thread::factory()->make($overrides);
         return $this->post('/threads', $thread->toArray());  //return Response
