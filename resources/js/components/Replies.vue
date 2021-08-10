@@ -21,9 +21,15 @@
 
         mixins: [collection],
 
-        data() { return {dataSet: false,};},
+        data() {
+            return {
+                dataSet: false,
+            };
+        },
 
-        created() {this.fetch();},
+        created() {
+            this.fetch();
+        },
 
         methods: {
             fetch(page) {
@@ -34,9 +40,11 @@
                 axios.get(this.url(page))
                     .then(this.refresh);
             },
+
             url(page) {
                 return `${location.pathname}/replies?page=${page}`;
             },
+
             refresh({data}) {
                 this.dataSet = data;
                 this.items = data.data;

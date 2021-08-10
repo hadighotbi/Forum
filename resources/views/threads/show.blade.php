@@ -28,9 +28,7 @@
                         </div>
                     </div>
 
-
                     <replies @added="repliesCount++" @removed="repliesCount--"></replies>
-
 
                 </div>
 
