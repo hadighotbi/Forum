@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\UsersController;
 use App\Http\Controllers\FavoritesController;
 use App\Http\Controllers\ProfilesController;
 use App\Http\Controllers\RepliesController;
@@ -39,3 +40,5 @@ Route::get('profiles/{user}/notifications' , [UserNotificationsController::class
 
 Route::post('/threads/{channel}/{thread}/subscriptions' , [ThreadSubscriptionsController::class , 'store'])->middleware('auth');
 Route::delete('/threads/{channel}/{thread}/subscriptions' , [ThreadSubscriptionsController::class , 'destroy'])->middleware('auth');
+
+Route::get('api/users', [UsersController::class , 'index']);
