@@ -1,5 +1,3 @@
-import Vue from "vue";
-
 window._ = require('lodash');
 
 /**
@@ -31,14 +29,13 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
  * allows your team to easily build robust real-time web applications.
  */
 
-Vue.prototype.authorize = function (handler) {
-    let user = Window.App.user;
+// import Echo from 'laravel-echo';
 
-    return user ? handler(user) : false;
-}
+// window.Pusher = require('pusher-js');
 
-
-window.events = new Vue();
-window.flash = function (message, level = 'success') {
-    window.events.$emit('flash' ,{ message , level });
-};
+// window.Echo = new Echo({
+//     broadcaster: 'pusher',
+//     key: process.env.MIX_PUSHER_APP_KEY,
+//     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
+//     forceTLS: true
+// });

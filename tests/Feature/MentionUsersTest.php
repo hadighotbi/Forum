@@ -6,8 +6,6 @@ use App\Models\Reply;
 use App\Models\Thread;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class MentionUsersTest extends TestCase
@@ -40,8 +38,8 @@ class MentionUsersTest extends TestCase
 
     function test_it_can_fetch_all_mentioned_users_starting_with_the_given_characters()
     {
-        User::factory()->create(['name' => 'johndoe']);
-        User::factory()->create(['name' => 'johndoe2']);
+        User::factory()->create(['name' => 'johnDoe']);
+        User::factory()->create(['name' => 'johnDoe2']);
         User::factory()->create(['name' => 'hadi']);
 
         $results = $this->json('GET', '/api/users', ['name' => 'john']);
