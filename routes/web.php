@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\UserAvatarController;
 use App\Http\Controllers\Api\UsersController;
 use App\Http\Controllers\FavoritesController;
 use App\Http\Controllers\ProfilesController;
@@ -42,3 +43,4 @@ Route::post('/threads/{channel}/{thread}/subscriptions' , [ThreadSubscriptionsCo
 Route::delete('/threads/{channel}/{thread}/subscriptions' , [ThreadSubscriptionsController::class , 'destroy'])->middleware('auth');
 
 Route::get('api/users', [UsersController::class , 'index']);
+Route::post('api/users/{user}/avatar', [UserAvatarController::class , 'store'])->middleware('auth')->name('avatar');

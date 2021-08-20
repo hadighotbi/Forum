@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'avatar_path',
     ];
 
     /**
@@ -75,5 +76,10 @@ class User extends Authenticatable
     public function lastReply()
     {
         return $this->hasOne(Reply::class)->latest();
+    }
+
+    public function avatar()
+    {
+        return asset($this->avatar_path ?: 'storage/avatars/default.png');
     }
 }

@@ -1,3 +1,5 @@
+import Vue from "vue";
+
 window._ = require('lodash');
 
 /**
@@ -39,3 +41,14 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 //     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
 //     forceTLS: true
 // });
+Vue.prototype.authorize = function (handler) {
+    let user = Window.App.user;
+
+    return user ? handler(user) : false;
+}
+
+
+window.events = new Vue();
+    window.flash = function (message, level = 'success') {
+        window.events.$emit('flash' ,{ message , level });
+    };
