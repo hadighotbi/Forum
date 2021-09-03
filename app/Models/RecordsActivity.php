@@ -4,6 +4,8 @@
 namespace App\Models;
 
 
+use Illuminate\Support\Facades\Redis;
+
 trait RecordsActivity       //Means a model can be Recorded on create or update or... and it stores in Activity table
 {
     protected static function bootRecordsActivity()
@@ -43,5 +45,4 @@ trait RecordsActivity       //Means a model can be Recorded on create or update 
         $type = strtolower((new \reflectionclass($this))->getshortname());
         return "{$event}_{$type}";
     }
-
 }

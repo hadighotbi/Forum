@@ -3,14 +3,12 @@
 namespace App\Models;
 
 use App\Events\ThreadReceivedNewReply;
-use App\Notifications\ThreadWasUpdated;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Thread extends Model
 {
-    use HasFactory;
-    use RecordsActivity;
+    use HasFactory, RecordsActivity, RecordsVisits;
 
     protected $guarded = [];
     protected $with = ['creator','channel'];
@@ -127,4 +125,5 @@ class Thread extends Model
         $key = $user->visitedThreadCacheKey($this);
         return $this->updated_at > cache($key);
     }
+
 }
