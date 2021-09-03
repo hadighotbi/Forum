@@ -24,11 +24,11 @@ class UserTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $this->assertEquals('avatars/default.jpg', $user->avatar());
+        $this->assertEquals(asset('storage/avatars/default.png'), $user->avatar_path);
 
-        $user->avatar_path = 'avatars/me.jpg';
+        $user->avatar_path = 'storage/avatars/me.jpg';
 
-        $this->assertEquals('avatars/me.jpg', $user->avatar());
+        $this->assertEquals(asset('storage/avatars/me.jpg'), $user->avatar_path);
     }
 
 }

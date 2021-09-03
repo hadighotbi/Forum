@@ -1,6 +1,5 @@
 @forelse($threads as $thread)
-    <div class="card-body">
-        <div class="card" >
+        <div class="card mb-3" >
             <div class="card-header">
                 <div class="level">
                     <div class="flex">
@@ -29,7 +28,6 @@
                 {{$thread->body}}
             </div>
         </div>
-    </div>
 @empty
     <p>There are no relevent results at this time.</p>
 @endforelse

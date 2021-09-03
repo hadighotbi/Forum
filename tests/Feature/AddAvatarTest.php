@@ -39,8 +39,8 @@ class AddAvatarTest extends TestCase
             'avatar' => $file = UploadedFile::fake()->create('avatar.jpg')
         ]);
 
-        $this->assertEquals('avatars/'.$file->hashName(), auth()->user()->avatar());
+        $this->assertEquals(asset('storage/avatars/'.$file->hashName()), auth()->user()->avatar_path);
 
-        Storage::disk('public')->assertExists('avatars/'.$file->hashName());
+        Storage::disk('public')->assertExists('/avatars/'.$file->hashName());
     }
 }
