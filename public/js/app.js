@@ -3195,7 +3195,7 @@ __webpack_require__.r(__webpack_exports__);
   props: ['message'],
   data: function data() {
     return {
-      body: '',
+      body: this.message,
       level: 'success',
       show: false
     };
@@ -3204,17 +3204,20 @@ __webpack_require__.r(__webpack_exports__);
     var _this = this;
 
     if (this.message) {
-      this.flash(this.message);
+      this.flash();
     }
 
     window.events.$on('flash', function (data) {
-      _this.flash(data);
+      return _this.flash(data);
     });
   },
   methods: {
     flash: function flash(data) {
-      this.body = data.message;
-      this.level = data.level;
+      if (data) {
+        this.body = data.message;
+        this.level = data.level;
+      }
+
       this.show = true;
       this.hide();
     },
@@ -19622,7 +19625,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_laravel_mix_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\n.alert-flash {\n    position: fixed;\n    right: 25px;\n    bottom:25px;\n}\n", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "\n.alert-flash {\n    position: fixed;\n    right: 25px;\n    bottom: 25px;\n}\n", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 

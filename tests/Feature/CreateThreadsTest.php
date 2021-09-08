@@ -36,13 +36,13 @@ class CreateThreadsTest extends TestCase
 
     function test_a_thread_requires_a_title()
     {
-        $this->PublishThread(['title' => null])
+        $this->publishThread(['title' => null])
             ->assertSessionHasErrors('title');
     }
 
     function test_a_thread_requires_a_body()
     {
-        $this->PublishThread(['body' => null])
+        $this->publishThread(['body' => null])
             ->assertSessionHasErrors('body');
     }
 
@@ -50,21 +50,21 @@ class CreateThreadsTest extends TestCase
     {
         Channel::factory()->count(2)->create();
 
-        $this->PublishThread(['channel_id' => null])
+        $this->publishThread(['channel_id' => null])
             ->assertSessionHasErrors('channel_id');
 
-        $this->PublishThread(['channel_id' => 999])
+        $this->publishThread(['channel_id' => 999])
             ->assertSessionHasErrors('channel_id');
     }
 
-    public function PublishThread ($overrides = [])
+    protected function publishThread ($overrides = [])  //posts a thread with signed in user
     {
         $this->withExceptionHandling()->signIn();
         $thread = Thread::factory()->make($overrides);
         return $this->post('/threads', $thread->toArray());  //return Response
     }
 
-    public function test_unauthorized_users_may_not_delete_threads()
+    function test_unauthorized_users_may_not_delete_threads()
     {
         $this->withExceptionHandling();
 
@@ -75,7 +75,7 @@ class CreateThreadsTest extends TestCase
         $this->delete($thread->path())->assertStatus(403);
     }
 
-    public function test_authorized_users_can_delete_threads()
+    function test_authorized_users_can_delete_threads()
     {
        $this->signIn();
 
@@ -91,7 +91,10 @@ class CreateThreadsTest extends TestCase
 
     }
 
-
-
-
+    function test_authenticated_users_must_first_confirm_their_email_address_before_creating_threads()
+    {
+        $this->publishThread()
+            ->assertRedirect('/threads')
+            ->assertSessionHas('flash');
+    }
 }

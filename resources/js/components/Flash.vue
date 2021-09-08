@@ -8,47 +8,49 @@
 </template>
 
 <script>
-    export default {
-        props: ['message'],
+export default {
+    props: ['message'],
 
-        data (){
-            return {
-                body: '',
-                level: 'success',
-                show: false
-            };
-        },
+    data() {
+        return {
+            body: this.message,
+            level: 'success',
+            show: false
+        };
+    },
 
-        created() {
-            if (this.message) {
-                this.flash(this.message);
-            }
-            window.events.$on('flash', data => {
-                this.flash(data);
-            });
-        },
+    created() {
+        if (this.message) {
+            this.flash();
+        }
+        window.events.$on(
+            'flash', data => this.flash(data)
+        );
+    },
 
-        methods: {
-            flash(data){
+    methods: {
+        flash(data) {
+            if (data) {
                 this.body = data.message;
                 this.level = data.level;
-                this.show = true;
-
-                this.hide();
-            },
-            hide(){
-                setTimeout(() => {
-                    this.show = false;
-                }, 5000);
             }
+            this.show = true;
+            this.hide();
+        },
+
+        hide() {
+            setTimeout(() => {
+                this.show = false;
+            }, 5000);
         }
-    };
+    }
+};
 </script>
 
 <style>
-    .alert-flash {
-        position: fixed;
-        right: 25px;
-        bottom:25px;
-    }
+.alert-flash {
+    position: fixed;
+    right: 25px;
+    bottom: 25px;
+}
 </style>

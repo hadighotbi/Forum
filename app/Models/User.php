@@ -42,6 +42,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'confirmed' => 'boolean'
     ];
 
     public function getRouteKeyName()
@@ -58,7 +59,6 @@ class User extends Authenticatable
     {
         return $this->hasMany(Activity::class);
     }
-
 
     public function read($thread)
     {
@@ -81,5 +81,11 @@ class User extends Authenticatable
     public function getAvatarPathAttribute ($avatar)
     {
         return asset($avatar ?: 'storage/avatars/default.png');
+    }
+
+    public function confirm()
+    {
+        $this->confirmed = true;
+        $this->save();
     }
 }
