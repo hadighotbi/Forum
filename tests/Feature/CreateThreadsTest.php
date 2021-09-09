@@ -6,6 +6,7 @@ use App\Models\Activity;
 use App\Models\Channel;
 use App\Models\Reply;
 use App\Models\Thread;
+use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
 
@@ -19,15 +20,15 @@ class CreateThreadsTest extends TestCase
         $this->get('threads/create')
             ->assertRedirect('login');
 
-        $this->post('/threads')
+        $this->post(route('threads'))
             ->assertRedirect('login');
     }
 
-    function test_an_authenticated_user_can_create_new_forum_threads()  //create Thread
+    function test_a_user_can_create_new_forum_threads()  //create Thread
     {
         $this->signIn();
         $thread = Thread::factory()->make();   //Dont save to DB has no id
-        $response = $this->post('/threads', $thread->toArray());    //Save
+        $response = $this->post(route('threads'), $thread->toArray());    //Save
 
         $this->get($response->headers->get('Location'))     //Location of Redirect
         ->assertSee($thread->title)
@@ -61,18 +62,21 @@ class CreateThreadsTest extends TestCase
     {
         $this->withExceptionHandling()->signIn();
         $thread = Thread::factory()->make($overrides);
-        return $this->post('/threads', $thread->toArray());  //return Response
+        return $this->post(route('threads'), $thread->toArray());  //return Response
     }
 
     function test_unauthorized_users_may_not_delete_threads()
     {
         $this->withExceptionHandling();
-
         $thread = Thread::factory()->create();
-        $this->delete( $thread->path())->assertRedirect('/login');
+
+        $this->delete( $thread->path() )
+            ->assertRedirect(route('login'));
 
         $this->signIn();
-        $this->delete($thread->path())->assertStatus(403);
+
+        $this->delete($thread->path())
+            ->assertStatus(403);
     }
 
     function test_authorized_users_can_delete_threads()
@@ -91,10 +95,16 @@ class CreateThreadsTest extends TestCase
 
     }
 
-    function test_authenticated_users_must_first_confirm_their_email_address_before_creating_threads()
+    function test_new_users_must_first_confirm_their_email_address_before_creating_threads()
     {
-        $this->publishThread()
-            ->assertRedirect('/threads')
+        $user = User::factory()->unconfirmed()->create();
+
+        $this->signIn($user);
+
+        $thread = Thread::factory()->make();
+
+        return $this->post('/threads', $thread->toArray())
+            ->assertRedirect(route('threads'))
             ->assertSessionHas('flash');
     }
 }

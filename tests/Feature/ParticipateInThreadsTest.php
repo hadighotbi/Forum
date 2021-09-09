@@ -15,7 +15,7 @@ class ParticipateInThreadsTest extends TestCase
     {
         $this->withExceptionHandling()
             ->post('/threads/someChannel/1/replies', [])
-            ->assertRedirect('login');
+            ->assertRedirect(route('login'));
     }
 
 
