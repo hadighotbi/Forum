@@ -48,6 +48,7 @@ class RegistrationTest extends TestCase
             ->assertRedirect(route('threads'));
 
         $this->assertTrue($user->fresh()->confirmed);
+        $this->assertNull($user->fresh()->confirmation_token);
    }
 
    function test_confirming_an_invalid_token()
