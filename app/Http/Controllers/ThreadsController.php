@@ -9,6 +9,7 @@ use App\Models\Trending;
 use App\Rules\SpamFree;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class ThreadsController extends Controller
 {
@@ -54,6 +55,7 @@ class ThreadsController extends Controller
             'body' => ['required',new SpamFree],
             'channel_id' => 'required|exists:channels,id'
         ]);
+
         //Create Thread
         $thread = Thread::create([
             'user_id' => auth()->id(),
@@ -61,6 +63,11 @@ class ThreadsController extends Controller
             'title' => request('title'),
             'body' => request('body')
         ]);
+
+        if(request()->wantsJson()) {
+            return response($thread, 201);
+        }
+
         return redirect($thread->path())->with('flash','Your thread has been published.');  //Redirect to this new Thread
     }
 

@@ -28,7 +28,7 @@ class CreateThreadsTest extends TestCase
     {
         $this->signIn();
         $thread = Thread::factory()->make();   //Dont save to DB has no id
-        $response = $this->post(route('threads'), $thread->toArray());    //Save
+        $response = $this->post( route('threads'), $thread->toArray());
 
         $this->get($response->headers->get('Location'))     //Location of Redirect
         ->assertSee($thread->title)
@@ -106,5 +106,27 @@ class CreateThreadsTest extends TestCase
         return $this->post('/threads', $thread->toArray())
             ->assertRedirect(route('threads'))
             ->assertSessionHas('flash');
+    }
+
+    function test_a_thread_requires_a_unique_slug()
+    {
+        $this->signIn();
+
+        $thread = Thread::factory()->create(['title' => 'Foo Title']);
+        $this->assertEquals($thread->fresh()->slug , 'foo-title');
+
+        $thread = $this->postJson( route('threads'), $thread->toArray())->json();
+        $this->assertEquals("foo-title-{$thread['id']}" , $thread['slug']);
+    }
+
+    function test_a_thread_with_a_title_that_ends_in_a_number_should_generate_the_proper_slug()
+    {
+        $this->signIn();
+
+        $thread = Thread::factory()->create(['title' => 'Some Title 24']);
+
+        $thread = $this->postJson( route('threads'), $thread->toArray())->json();
+
+        $this->assertEquals("some-title-24-{$thread['id']}" , $thread['slug']);
     }
 }
