@@ -33,6 +33,7 @@
         .level {display : flex; align-items: center;}
         .flex {flex: 1;}
         .mr-1 {margin-right: 1em;}
+        .ml-a {margin-left: auto;}
         [v-cloak] {display:none;}
         h1, h2, h3, h4, h5, h6 {
             margin-top: 0;

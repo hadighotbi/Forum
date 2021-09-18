@@ -3318,11 +3318,6 @@ __webpack_require__.r(__webpack_exports__);
       body: ''
     };
   },
-  computed: {
-    signedIn: function signedIn() {
-      return Window.App.signedIn;
-    }
-  },
   mounted: function mounted() {
     $('#body').atwho({
       at: "@",
@@ -3427,8 +3422,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _Reply_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Reply.vue */ "./resources/js/components/Reply.vue");
-/* harmony import */ var _NewReply_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./NewReply.vue */ "./resources/js/components/NewReply.vue");
+/* harmony import */ var _Reply__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Reply */ "./resources/js/components/Reply.vue");
+/* harmony import */ var _NewReply__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./NewReply */ "./resources/js/components/NewReply.vue");
 /* harmony import */ var _mixins_collection__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../mixins/collection */ "./resources/js/mixins/collection.js");
 //
 //
@@ -3447,8 +3442,8 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   components: {
-    Reply: _Reply_vue__WEBPACK_IMPORTED_MODULE_0__.default,
-    NewReply: _NewReply_vue__WEBPACK_IMPORTED_MODULE_1__.default
+    Reply: _Reply__WEBPACK_IMPORTED_MODULE_0__.default,
+    NewReply: _NewReply__WEBPACK_IMPORTED_MODULE_1__.default
   },
   mixins: [_mixins_collection__WEBPACK_IMPORTED_MODULE_2__.default],
   data: function data() {
@@ -3536,38 +3531,42 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  props: ['data'],
+  props: ['reply'],
   components: {
     Favorite: _Favorite_vue__WEBPACK_IMPORTED_MODULE_0__.default
   },
   data: function data() {
     return {
       editing: false,
-      id: this.data.id,
-      body: this.data.body
+      id: this.reply.id,
+      body: this.reply.body,
+      isBest: this.reply.isBest
     };
   },
   computed: {
     ago: function ago() {
-      return moment__WEBPACK_IMPORTED_MODULE_1___default()(this.data.created_at).fromNow();
-    },
-    signedIn: function signedIn() {
-      return Window.App.signedIn;
-    },
-    canUpdate: function canUpdate() {
-      var _this = this;
-
-      return this.authorize(function (user) {
-        return _this.data.user_id === user.id;
-      });
+      return moment__WEBPACK_IMPORTED_MODULE_1___default()(this.reply.created_at).fromNow();
     }
+  },
+  created: function created() {
+    var _this = this;
+
+    window.events.$on('best-reply-selected', function (id) {
+      _this.isBest = id === _this.id;
+    });
   },
   methods: {
     update: function update() {
-      axios.patch('/replies/' + this.data.id, {
+      axios.patch('/replies/' + this.id, {
         body: this.body
       })["catch"](function (error) {
         flash(error.response.data, 'danger');
@@ -3576,10 +3575,13 @@ __webpack_require__.r(__webpack_exports__);
       flash('Updated!');
     },
     destroy: function destroy() {
-      axios["delete"]('/replies/' + this.data.id);
-      this.$emit('deleted', this.data.id);
-      flash('Your reply has been deleted.'); // $(this.$el).fadeOut(300, () => {
-      // });
+      axios["delete"]('/replies/' + this.id);
+      this.$emit('deleted', this.id);
+      flash('Your reply has been deleted.');
+    },
+    markBestReply: function markBestReply() {
+      axios.post('/replies/' + this.id + '/best');
+      window.events.$emit('best-reply-selected', this.id);
     }
   }
 });
@@ -3741,6 +3743,22 @@ var app = new Vue({
 
 /***/ }),
 
+/***/ "./resources/js/authorizations.js":
+/*!****************************************!*\
+  !*** ./resources/js/authorizations.js ***!
+  \****************************************/
+/***/ ((module) => {
+
+var user = Window.App.user;
+module.exports = {
+  owns: function owns(model) {
+    var props = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'user_id';
+    return model[props] === user.id;
+  }
+};
+
+/***/ }),
+
 /***/ "./resources/js/bootstrap.js":
 /*!***********************************!*\
   !*** ./resources/js/bootstrap.js ***!
@@ -3752,11 +3770,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js");
 
 window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
-/**
- * We'll load jQuery and the Bootstrap jQuery plugin which provides support
- * for JavaScript based Bootstrap features such as modals and tabs. This
- * code may be modified to fit the specific needs of your application.
- */
 
 try {
   window.Popper = __webpack_require__(/*! popper.js */ "./node_modules/popper.js/dist/esm/popper.js").default;
@@ -3764,34 +3777,28 @@ try {
 
   __webpack_require__(/*! bootstrap */ "./node_modules/bootstrap/dist/js/bootstrap.js");
 } catch (e) {}
-/**
- * We'll load the axios HTTP library which allows us to easily issue requests
- * to our Laravel back-end. This library automatically handles sending the
- * CSRF token as a header based on the value of the "XSRF" token cookie.
- */
-
 
 window.axios = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-/**
- * Echo exposes an expressive API for subscribing to channels and listening
- * for events that are broadcast by Laravel. Echo and event broadcasting
- * allows your team to easily build robust real-time web applications.
- */
-// import Echo from 'laravel-echo';
-// window.Pusher = require('pusher-js');
-// window.Echo = new Echo({
-//     broadcaster: 'pusher',
-//     key: process.env.MIX_PUSHER_APP_KEY,
-//     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
-//     forceTLS: true
-// });
 
-vue__WEBPACK_IMPORTED_MODULE_0__.default.prototype.authorize = function (handler) {
-  var user = Window.App.user;
-  return user ? handler(user) : false;
+var authorizations = __webpack_require__(/*! ./authorizations */ "./resources/js/authorizations.js");
+
+vue__WEBPACK_IMPORTED_MODULE_0__.default.prototype.authorize = function () {
+  //Additional admin privileges here.
+  if (!Window.App.signedIn) return false;
+
+  for (var _len = arguments.length, params = new Array(_len), _key = 0; _key < _len; _key++) {
+    params[_key] = arguments[_key];
+  }
+
+  if (typeof params[0] === 'string') {
+    return authorizations[params[0]](params[1]);
+  }
+
+  return params[0](Window.App.user);
 };
 
+vue__WEBPACK_IMPORTED_MODULE_0__.default.prototype.signedIn = Window.App.signedIn;
 window.events = new vue__WEBPACK_IMPORTED_MODULE_0__.default();
 
 window.flash = function (message) {
@@ -62644,7 +62651,7 @@ var render = function() {
           { key: reply.id },
           [
             _c("reply", {
-              attrs: { data: reply },
+              attrs: { reply: reply },
               on: {
                 deleted: function($event) {
                   return _vm.remove(index)
@@ -62691,7 +62698,11 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c(
     "div",
-    { staticClass: "panel panel-default", attrs: { id: "reply-" + _vm.id } },
+    {
+      staticClass: "panel",
+      class: _vm.isBest ? "panel-success" : "panel-default",
+      attrs: { id: "reply-" + _vm.id }
+    },
     [
       _c(
         "div",
@@ -62699,17 +62710,21 @@ var render = function() {
         [
           _c("div", { staticClass: "card-header" }, [
             _c("div", { staticClass: "level" }, [
-              _c("span", { staticClass: "flex" }, [
+              _c("span", { staticClass: "flex " }, [
                 _c("a", {
-                  attrs: { href: "/profiles/" + _vm.data.owner.name },
-                  domProps: { textContent: _vm._s(_vm.data.owner.name) }
+                  attrs: { href: "/profiles/" + _vm.reply.owner.name },
+                  domProps: { textContent: _vm._s(_vm.reply.owner.name) }
                 }),
                 _vm._v(" Said "),
                 _c("span", { domProps: { textContent: _vm._s(_vm.ago) } })
               ]),
               _vm._v(" "),
               _vm.signedIn
-                ? _c("div", [_c("favorite", { attrs: { reply: _vm.data } })], 1)
+                ? _c(
+                    "div",
+                    [_c("favorite", { attrs: { reply: _vm.reply } })],
+                    1
+                  )
                 : _vm._e()
             ])
           ]),
@@ -62742,14 +62757,14 @@ var render = function() {
                       })
                     ]),
                     _vm._v(" "),
-                    _c("button", { staticClass: "btn btn-primary btn-sm" }, [
+                    _c("button", { staticClass: "btn btn-sm btn-primary" }, [
                       _vm._v("Update")
                     ]),
                     _vm._v(" "),
                     _c(
                       "button",
                       {
-                        staticClass: "btn btn-link btn-sm",
+                        staticClass: "btn btn-sm btn-link",
                         attrs: { type: "button" },
                         on: {
                           click: function($event) {
@@ -62764,31 +62779,46 @@ var render = function() {
               : _c("div", { domProps: { innerHTML: _vm._s(_vm.body) } })
           ]),
           _vm._v(" "),
-          _vm.canUpdate
+          _vm.authorize("owns", _vm.reply) ||
+          _vm.authorize("owns", _vm.reply.thread)
             ? _c("div", { staticClass: "panel-footer bg-light level" }, [
-                _c(
-                  "button",
-                  {
-                    staticClass: "btn btn-info btn-sm",
-                    staticStyle: { margin: "10px" },
-                    on: {
-                      click: function($event) {
-                        _vm.editing = true
-                      }
-                    }
-                  },
-                  [_vm._v("Edit")]
-                ),
+                _vm.authorize("owns", _vm.reply)
+                  ? _c("div", [
+                      _c(
+                        "button",
+                        {
+                          staticClass: "btn btn-sm btn-info mr-1",
+                          on: {
+                            click: function($event) {
+                              _vm.editing = true
+                            }
+                          }
+                        },
+                        [_vm._v("Edit")]
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "button",
+                        {
+                          staticClass: "btn btn-sm btn-danger mr-1",
+                          on: { click: _vm.destroy }
+                        },
+                        [_vm._v("Delete")]
+                      )
+                    ])
+                  : _vm._e(),
                 _vm._v(" "),
-                _c(
-                  "button",
-                  {
-                    staticClass: "btn btn-danger btn-sm",
-                    staticStyle: { margin: "10px" },
-                    on: { click: _vm.destroy }
-                  },
-                  [_vm._v("Delete")]
-                )
+                _vm.authorize("owns", _vm.reply.thread)
+                  ? _c(
+                      "button",
+                      {
+                        staticClass: "btn btn-sm btn-success ml-a",
+                        attrs: { type: "button" },
+                        on: { click: _vm.markBestReply }
+                      },
+                      [_vm._v("\n                Best Reply?\n            ")]
+                    )
+                  : _vm._e()
               ])
             : _vm._e()
         ]

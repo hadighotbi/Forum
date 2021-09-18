@@ -1,16 +1,16 @@
 <template>
-    <div :id="'reply-'+id" class="panel panel-default">
+    <div :id="'reply-'+id" class="panel" :class="isBest ? 'panel-success' : 'panel-default'">
         <div class="card" style="margin-bottom: 15px;">
             <div class="card-header">
                 <div class="level">
-                <span class="flex">
-                    <a :href="'/profiles/' + data.owner.name"
-                       v-text="data.owner.name">
+                <span class="flex ">
+                    <a :href="'/profiles/' + reply.owner.name"
+                       v-text="reply.owner.name">
                     </a> Said <span v-text="ago"></span>
                 </span>
 
                     <div v-if="signedIn">
-                        <favorite :reply="data"></favorite>
+                        <favorite :reply="reply"></favorite>
                     </div>
 
                 </div>
@@ -23,16 +23,22 @@
                             <textarea class="form-control" v-model="body" required></textarea>
                         </div>
 
-                        <button class="btn btn-primary btn-sm">Update</button>
-                        <button class="btn btn-link btn-sm" @click="editing = false" type="button">Cancel</button>
+                        <button class="btn btn-sm btn-primary">Update</button>
+                        <button class="btn btn-sm btn-link" @click="editing= false" type="button">Cancel</button>
                     </form>
                 </div>
                 <div v-else v-html="body"></div>
             </div>
 
-            <div class="panel-footer bg-light level" v-if="canUpdate">
-                <button class="btn btn-info btn-sm" style="margin:10px;" @click="editing = true">Edit</button>
-                <button class="btn btn-danger btn-sm" style="margin:10px;" @click="destroy">Delete</button>
+            <div class="panel-footer bg-light level" v-if="authorize('owns', reply) || authorize('owns',reply.thread)">
+                <div v-if="authorize('owns', reply)">
+                    <button class="btn btn-sm btn-info mr-1" @click="editing= true">Edit</button>
+                    <button class="btn btn-sm btn-danger mr-1" @click="destroy">Delete</button>
+                </div>
+                <button class="btn btn-sm btn-success ml-a" type="button"
+                        @click="markBestReply" v-if="authorize('owns', reply.thread)">
+                    Best Reply?
+                </button>
             </div>
         </div>
     </div>
@@ -43,54 +49,51 @@ import Favorite from "./Favorite.vue";
 import moment from 'moment';
 
 export default {
-    props: ['data'],
-
-    components: { Favorite },
+    props: ['reply'],
+    components: {Favorite},
 
     data() {
         return {
             editing: false,
-            id: this.data.id,
-            body: this.data.body
+            id: this.reply.id,
+            body: this.reply.body,
+            isBest: this.reply.isBest
         };
     },
 
     computed: {
         ago() {
-            return moment(this.data.created_at).fromNow();
-        },
-
-        signedIn() {
-            return Window.App.signedIn;
-        },
-
-        canUpdate() {
-            return this.authorize(user => this.data.user_id === user.id);
+            return moment(this.reply.created_at).fromNow();
         }
     },
 
+    created() {
+        window.events.$on('best-reply-selected', id => {
+            this.isBest = (id === this.id);
+        })
+    },
+
+
     methods: {
         update() {
-            axios.patch(
-                '/replies/' + this.data.id, {
-                    body: this.body
-                })
-            .catch(error => {
-                flash(error.response.data , 'danger');
-            });
-            this.editing = false;
+            axios.patch('/replies/' + this.id, {body: this.body})
+                .catch(error => {
+                    flash(error.response.data, 'danger');
+                });
 
+            this.editing = false;
             flash('Updated!');
         },
 
         destroy() {
-            axios.delete('/replies/' + this.data.id);
-
-            this.$emit('deleted', this.data.id);
-
+            axios.delete('/replies/' + this.id);
+            this.$emit('deleted', this.id);
             flash('Your reply has been deleted.');
-            // $(this.$el).fadeOut(300, () => {
-            // });
+        },
+
+        markBestReply() {
+            axios.post('/replies/' + this.id + '/best');
+            window.events.$emit('best-reply-selected', this.id);
         }
     }
 }

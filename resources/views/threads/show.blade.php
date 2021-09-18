@@ -29,7 +29,7 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            {{$thread->body}}
+                            <p class="card-text">{{$thread->body}}</p>
                         </div>
                     </div>
 

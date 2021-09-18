@@ -67,8 +67,8 @@ class ThreadsController extends Controller
         if(request()->wantsJson()) {
             return response($thread, 201);
         }
-
-        return redirect($thread->path())->with('flash','Your thread has been published.');  //Redirect to this new Thread
+        //Redirect to this new Thread
+        return redirect($thread->path())->with('flash','Your thread has been published.');
     }
 
     /**
@@ -79,12 +79,11 @@ class ThreadsController extends Controller
      */
     public function show($channel, Thread $thread, Trending $trending)
     {
-        if(auth()->check()) {
+        if(auth()->check())
+        {
             auth()->user()->read($thread);
         }
-
         $trending->push($thread);
-
         $thread->visits()->record();
 
         return view('threads.show',compact('thread'));
@@ -107,8 +106,9 @@ class ThreadsController extends Controller
         $this->authorize('update', $thread);
 
         $thread->delete();
-        if( request()->wantsJson() ) {
-            return response([], 204);
+        if( request()->wantsJson() )
+        {
+            return response([], 204);  //For Ajax
         }
         return redirect('/threads');
     }
@@ -116,10 +116,11 @@ class ThreadsController extends Controller
     protected function getThreads(ThreadFilters $filters, Channel $channel)
     {
         $threads = Thread::latest()->filter($filters);
-        if ($channel->exists) {
+        if ($channel->exists)
+        {
             $threads->where('channel_id', $channel->id);
         }
-        return $threads->paginate(5);
+        return $threads->paginate(10);
     }
 
 }
