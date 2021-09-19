@@ -3437,6 +3437,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 
 
 
@@ -3688,15 +3690,22 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  props: ['initialRepliesCount'],
+  props: ['thread'],
   components: {
     Replies: _components_Replies__WEBPACK_IMPORTED_MODULE_0__.default,
     SubscribeButton: _components_SubscribeButton__WEBPACK_IMPORTED_MODULE_1__.default
   },
   data: function data() {
     return {
-      repliesCount: this.initialRepliesCount
+      repliesCount: this.thread.replies_count,
+      locked: this.thread.locked
     };
+  },
+  methods: {
+    toggleLock: function toggleLock() {
+      axios[this.locked ? 'delete' : 'post']('/locked-threads/' + this.thread.slug);
+      this.locked = !this.locked;
+    }
   }
 });
 
@@ -3754,6 +3763,9 @@ module.exports = {
   owns: function owns(model) {
     var props = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'user_id';
     return model[props] === user.id;
+  },
+  isAdmin: function isAdmin() {
+    return ['JohnDoe', 'hadi'].includes(user.name);
   }
 };
 
@@ -62668,7 +62680,13 @@ var render = function() {
         on: { changed: _vm.fetch }
       }),
       _vm._v(" "),
-      _c("new-reply", { on: { created: _vm.add } })
+      _vm.$parent.locked
+        ? _c("p", [
+            _vm._v(
+              "\n        This thread has been locked. No more replies are allowed.\n    "
+            )
+          ])
+        : _c("new-reply", { on: { created: _vm.add } })
     ],
     2
   )

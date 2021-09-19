@@ -21,6 +21,7 @@ class ThreadFactory extends Factory
             'title' => $title,
             'body' => $this->faker->paragraph(),
             'visits' => 0,
+            'locked' => false
         ];
     }
 }

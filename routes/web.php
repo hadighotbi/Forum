@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\UsersController;
 use App\Http\Controllers\Auth\RegisterConfirmationController;
 use App\Http\Controllers\BestRepliesController;
 use App\Http\Controllers\FavoritesController;
+use App\Http\Controllers\LockedThreadsController;
 use App\Http\Controllers\ProfilesController;
 use App\Http\Controllers\RepliesController;
 use App\Http\Controllers\ThreadsController;
@@ -28,10 +29,15 @@ Route::get('threads', [ThreadsController::class, 'index'])->name('threads');
 Route::post('threads', [ThreadsController::class, 'store'])->middleware('must-be-confirmed');
 Route::get('threads/create', [ThreadsController::class, 'create']);
 Route::get('threads/{channel}/{thread}', [ThreadsController::class,'show']);
+Route::patch('threads/{channel}/{thread}', [ThreadsController::class,'update'])->name('threads.update');
 Route::delete('threads/{channel}/{thread}', [ThreadsController::class,'destroy']);
 Route::get('threads/{channel}/{thread}/replies', [RepliesController::class, 'index']);
 Route::post('threads/{channel}/{thread}/replies', [RepliesController::class, 'store']);
 Route::get('threads/{channel}', [ThreadsController::class, 'index']);
+
+//Lock Threads
+Route::post('locked-threads/{thread}', [LockedThreadsController::class, 'store'])->name('locked-threads.store')->middleware('admin');
+Route::delete('locked-threads/{thread}', [LockedThreadsController::class, 'destroy'])->name('locked-threads.destroy')->middleware('admin');
 
 //Best Reply
 Route::post('/replies/{reply}/best', [BestRepliesController::class, 'store'])->name('best-replies.store');

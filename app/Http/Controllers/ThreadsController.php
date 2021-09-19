@@ -37,6 +37,9 @@ class ThreadsController extends Controller
         ]);
     }
 
+    /**
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     */
     public function create()
     {
         return view('threads.create');
@@ -89,18 +92,12 @@ class ThreadsController extends Controller
         return view('threads.show',compact('thread'));
     }
 
-
-    public function edit(Thread $thread)
-    {
-        //
-    }
-
-
-    public function update(Request $request, Thread $thread)
-    {
-        //
-    }
-
+    /**
+     * @param $channel
+     * @param Thread $thread
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\RedirectResponse|\Illuminate\Http\Response|\Illuminate\Routing\Redirector
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
     public function destroy($channel, Thread $thread)
     {
         $this->authorize('update', $thread);

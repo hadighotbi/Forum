@@ -42,7 +42,7 @@ class RegistrationTest extends TestCase
         $user = User::whereName('john')->first();
 
         $this->assertFalse($user->confirmed);
-        $this->assertNotNull($user->confirmation_token);
+        $this->assertNull($user->confirmation_token);
 
         $this->get(route('register.confirm', ['token' => $user->confirmation_token]))
             ->assertRedirect(route('threads'));
